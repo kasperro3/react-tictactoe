@@ -1,13 +1,12 @@
 import { Text, View, StyleSheet, ScrollView } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Game/>
-    </SafeAreaView>
+    </View>
   );
 }
 
