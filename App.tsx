@@ -56,9 +56,10 @@ function Game(){
 } 
 
 function Board ({xTurn, squares, onPlay}: {xTurn: boolean, squares: string[], onPlay: (s: string[]) => void}){
+  const winnerInfo = calculateWinner({squares});
   function handlePress(index: number) {
     // check if clicked square is occupied
-    if(squares[index] || calculateWinner({squares}))
+    if(squares[index] || winnerInfo.winner)
       return;
 
     const newSquares = squares.slice();
@@ -74,7 +75,7 @@ function Board ({xTurn, squares, onPlay}: {xTurn: boolean, squares: string[], on
   }
 
   let stats;
-  if(calculateWinner({squares}))
+  if(winnerInfo.winner)
     // winner is last player
     stats = `Winner is ${!xTurn ? 'X' : 'O'}`;
   else
@@ -83,7 +84,7 @@ function Board ({xTurn, squares, onPlay}: {xTurn: boolean, squares: string[], on
   // create rows to render
   function BoardRow({i}: {i : number}){
     const row = [i*3, i*3+1, i*3+2].map(index => (
-      <Square key={index} value = {squares[index]} index={index} onSquareClick={handlePress}/>
+      <Square key={index} value = {squares[index]} index={index} onSquareClick={handlePress} winLine ={winnerInfo.line}/>
     ));
     return(
       <View style={styles.boardRow}>
@@ -102,9 +103,9 @@ function Board ({xTurn, squares, onPlay}: {xTurn: boolean, squares: string[], on
   );
 }
 
-function Square({value, index, onSquareClick}: {value: string, index: number, onSquareClick: (num: number) => void}) {
+function Square({value, index, onSquareClick, winLine}: {value: string, index: number, onSquareClick: (num: number) => void, winLine: number[]}) {
   return (
-    <TouchableOpacity style={styles.square} onPress={() => onSquareClick(index)}>
+    <TouchableOpacity style={[styles.square, winLine.includes(index) && styles.winnerSquare]} onPress={() => onSquareClick(index)}>
       <Text style={{fontSize : 80}}>{value}</Text>
     </TouchableOpacity>
   );
@@ -131,9 +132,9 @@ function calculateWinner({squares}: {squares: string[]})
     const [a,b,c] = lines[i];
     // ensure that any of the squares is not null and check for winner
     if(squares[a] && squares[a] == squares[b] && squares[a] == squares[c])
-      return true;
+      return {winner: true, line: lines[i]};
   }
-  return null;
+  return {winner: false, line:[]};
 }
 
 const styles = StyleSheet.create({
@@ -173,5 +174,8 @@ const styles = StyleSheet.create({
     padding : 10,
     width: 110,
     alignItems: 'center'
+  },
+  winnerSquare : {
+    backgroundColor : 'green',
   }
 });
